@@ -19,8 +19,6 @@ namespace WPFCICDDemo
         public MainWindow()
         {
             InitializeComponent();
-            asdasdasda;
-            asdasdasda;
         }
     }
 }
