@@ -19,7 +19,12 @@ namespace WPFCICDDemo
         public MainWindow()
         {
             InitializeComponent();
+        }
 
+
+        public int Validate()
+        {
+            return 123;
         }
     }
 }
