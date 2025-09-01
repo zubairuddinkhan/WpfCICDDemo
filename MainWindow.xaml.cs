@@ -19,7 +19,7 @@ namespace WPFCICDDemo
         public MainWindow()
         {
             InitializeComponent();
-
+            asdasdasda;
         }
     }
 }
