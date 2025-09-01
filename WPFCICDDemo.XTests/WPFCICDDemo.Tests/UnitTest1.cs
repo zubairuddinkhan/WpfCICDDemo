@@ -1,3 +1,5 @@
+
+
 namespace WPFCICDDemo.Tests
 {
     public class UnitTest1
@@ -15,5 +17,6 @@ namespace WPFCICDDemo.Tests
         {
             Assert.Equal(expected, a + b);
         }
+
     }
 }

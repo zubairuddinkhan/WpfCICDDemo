@@ -20,5 +20,11 @@ namespace WPFCICDDemo
         {
             InitializeComponent();
         }
+
+
+        public int Validate()
+        {
+            return 123;
+        }
     }
 }
