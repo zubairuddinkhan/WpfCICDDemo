@@ -20,6 +20,7 @@ namespace WPFCICDDemo
         {
             InitializeComponent();
             asdasdasda;
+            asdasdasda;
         }
     }
 }
