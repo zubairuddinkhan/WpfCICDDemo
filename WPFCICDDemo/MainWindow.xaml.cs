@@ -24,7 +24,7 @@ namespace WPFCICDDemo
 
         public int Validate()
         {
-            return 1234;
+            return 12345;
         }
     }
 }
