@@ -15,7 +15,8 @@ namespace WPFCICDDemo.Tests
         [InlineData(10, 20, 30)]
         public void Add_MultipleCases_ReturnsSum(int a, int b, int expected)
         {
-            Assert.Equal(expected, a + b);
+            Assert.Equal(expected, a + b); 
+
         }
 
     }
