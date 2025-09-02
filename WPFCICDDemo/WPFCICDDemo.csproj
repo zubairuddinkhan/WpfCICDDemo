@@ -9,7 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include=".github\workflows\wpf-ci.yml" />
+    <Compile Remove=".github\**" />
+    <EmbeddedResource Remove=".github\**" />
+    <None Remove=".github\**" />
+    <Page Remove=".github\**" />
   </ItemGroup>
 
 </Project>
