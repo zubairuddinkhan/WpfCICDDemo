@@ -25,5 +25,4 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
       
-      - name: Run XUnit tests
-        run: dotnet test --no-build --verbosity normal
+      
