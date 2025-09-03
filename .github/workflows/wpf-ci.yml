@@ -1,30 +1,79 @@
-﻿name: .NET 8 WPF CI
+name: .NET 8 WPF CI with SonarCloud
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
+      # Setup Java (required for SonarScanner)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      # Checkout source code
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for Sonar to analyze git history
 
+      # Cache Sonar scanner
+      - name: Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      # Install Sonar scanner if not cached
+      - name: Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory -Force
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+
+      # Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
+      # Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
+        shell: cmd
 
+      # Begin SonarCloud analysis
+      - name: Begin SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .\.sonar\scanner\dotnet-sonarscanner begin /k:"zubairuddinkhan_WpfCICDDemo" /o:"zubairuddinkhan" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**"
+
+      # Build project
       - name: Build
         run: dotnet build --configuration Release --no-restore
+        shell: cmd
 
-      - name: Run XUnit tests
-        run: dotnet test --configuration Release --verbosity normal
-      
+      # Run tests with coverage
+      - name: Run XUnit tests with coverage
+        run: dotnet test --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+        shell: cmd
+
+      # End SonarCloud analysis
+      - name: End SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: .\.sonar\scanner\dotnet-sonarscanner end
+        shell: cmd
