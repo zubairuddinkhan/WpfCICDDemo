@@ -26,5 +26,11 @@ namespace WPFCICDDemo
         {
             return 12345;
         }
+
+        public void Test()
+        {
+            while (true)
+            { }
+        }
     }
 }
