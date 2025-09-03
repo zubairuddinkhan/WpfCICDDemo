@@ -59,7 +59,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: .\.sonar\scanner\dotnet-sonarscanner begin /k:"zubairuddinkhan_WpfCICDDemo" /o:"zubairuddinkhan" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**"
+        run: .\.sonar\scanner\dotnet-sonarscanner begin /k:"zubairuddinkhan_WpfCICDDemo" /o:"zubairuddinkhan" /d:sonar.cs.opencover.reportsPaths="**/TestResults/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**"
 
       # Build project
       - name: Build
@@ -68,7 +68,7 @@ jobs:
 
       # Run tests with coverage
       - name: Run XUnit tests with coverage
-        run: dotnet test --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+        run: dotnet test --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=TestResults/coverage.opencover.xml
         shell: cmd
 
       # End SonarCloud analysis
