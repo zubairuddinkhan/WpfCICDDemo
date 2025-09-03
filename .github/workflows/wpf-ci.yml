@@ -59,7 +59,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: .\.sonar\scanner\dotnet-sonarscanner begin /k:"zubairuddinkhan_WpfCICDDemo" /o:"zubairuddinkhan" /d:sonar.cs.opencover.reportsPaths="**/TestResults/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**"
+        run: .\.sonar\scanner\dotnet-sonarscanner begin /k:"zubairuddinkhan_WpfCICDDemo" /o:"zubairuddinkhan" /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**"
 
       # Build project
       - name: Build
@@ -71,6 +71,13 @@ jobs:
         run: dotnet test --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=TestResults/coverage.opencover.xml
         shell: cmd
 
+      # Upload coverage file as artifact for debugging
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: "**/TestResults/**/coverage.opencover.xml"
+          
       # End SonarCloud analysis
       - name: End SonarCloud analysis
         env:
