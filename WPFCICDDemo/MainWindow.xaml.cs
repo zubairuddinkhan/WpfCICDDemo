@@ -21,10 +21,5 @@ namespace WPFCICDDemo
             InitializeComponent();
         }
 
-
-        public int Validate()
-        {
-            return 12345;
-        }
     }
 }
