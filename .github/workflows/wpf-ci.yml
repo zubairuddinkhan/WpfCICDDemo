@@ -1,52 +1,72 @@
-name: .NET 8 WPF CI with SonarQube
+name: .NET 8 WPF CI with SonarCloud
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-jobs:
-  build:
+	@@ -11,42 +11,68 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # Setup Java (required for SonarScanner)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      # Checkout source code
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Required for SonarQube to analyze git history
 
+      # Cache SonarQube Cloud scanner
+      - name: Cache SonarQube Cloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      # Install SonarScanner if cache is empty
+      - name: Install SonarQube Cloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory -Force
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+      # Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      - name: Install SonarScanner for .NET
-        run: dotnet tool install --global dotnet-sonarscanner
-        shell: cmd
-
+      # Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
         shell: cmd
 
-      - name: Begin SonarQube analysis
+      # Begin SonarCloud analysis
+      - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet sonarscanner begin /k:"zubairuddinkhan_WpfCICDDemo" /o:"zubairuddinkhan" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**" /d:sonar.sourceEncoding="UTF-8" /d:sonar.branch.name="${{ github.ref_name }}"
+        run: .\.sonar\scanner\dotnet-sonarscanner begin /k:"zubairuddinkhan_WpfCICDDemo" /o:"zubairuddinkhan" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.exclusions="**/obj/**,**/bin/**" /d:sonar.sourceEncoding="UTF-8" 
         shell: cmd
 
+      # Build project
       - name: Build
         run: dotnet build --configuration Release --no-restore
         shell: cmd
 
+      # Run tests with coverage
       - name: Run XUnit tests with coverage
         run: dotnet test --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
         shell: cmd
 
-      - name: End SonarQube analysis
+      # End SonarCloud analysis
+      - name: End SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         shell: cmd
-      
